@@ -32,7 +32,7 @@ export function CategoryBars({ categories }: Props) {
         This week&apos;s balance
       </h2>
       <p className="mt-1 text-sm text-[var(--muted)]">
-        Relative estimates — not grams or calories.
+        Relative insights - use to fuel your next meal.
       </p>
       <ul className="mt-4 flex flex-col gap-3">
         {LABELS.map(({ key, label }) => {
