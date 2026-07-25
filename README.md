@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Balance Nutrition Track
 
-## Getting Started
+Mobile-first web app for **80/20 nutrition balance** — not calorie counting. Log meals as loose text, get a health score, and aim for **80%+**.
 
-First, run the development server:
+## Stack
+
+- Next.js (App Router) + TypeScript + Tailwind
+- Supabase (auth + Postgres + RLS)
+- Google Gemini (meal scoring)
+- Vercel hosting
+
+## Setup
+
+### 1. Install
+
+```bash
+npm install
+cp .env.example .env.local
+```
+
+### 2. Supabase
+
+1. Create a project at [supabase.com](https://supabase.com)
+2. SQL Editor → run [`supabase/migrations/001_init.sql`](supabase/migrations/001_init.sql)
+3. Authentication → Providers → Email enabled
+4. (Optional) Authentication → Providers → disable "Confirm email" for faster local testing
+5. Copy **Project URL** and **anon key** into `.env.local`
+
+### 3. Gemini
+
+1. Open [Google AI Studio](https://aistudio.google.com/apikey)
+2. Create an API key
+3. Put it in `.env.local` as `GEMINI_API_KEY`
+
+### 4. Run locally
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 5. Tests
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm test
+```
 
-## Learn More
+Manual checklist: [`ACCEPTANCE.md`](ACCEPTANCE.md)
 
-To learn more about Next.js, take a look at the following resources:
+## Deploy (GitHub + Vercel)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Push this repo to GitHub as `balance_nutrition_track`
+2. Import the repo in [Vercel](https://vercel.com)
+3. Add env vars: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `GEMINI_API_KEY`
+4. Deploy
+5. In Supabase → Authentication → URL Configuration, add your Vercel URL to **Site URL** and **Redirect URLs** (`https://your-app.vercel.app/auth/callback`)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Features
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Today / Weekly (rolling 7 days) / Overall health scores
+- Plain-text meal logging via Gemini
+- Relative category estimates (carbs, protein, fats, fiber, sugar, vitamins)
+- Soft "Add more …" tips
+- Week meal log
+- Manual overall score reset (keeps history)

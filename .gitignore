@@ -6,6 +6,7 @@
 .pnp.*
 .yarn/*
 !.yarn/patches
+!.yarn/patches
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions
@@ -30,8 +31,11 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*
+# env files (keep .env.example)
+.env
+.env.local
+.env.*.local
+!.env.example
 
 # vercel
 .vercel
