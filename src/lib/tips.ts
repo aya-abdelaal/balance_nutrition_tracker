@@ -13,7 +13,6 @@ export function buildTips(
 
   if (categories.protein < 4) tips.push("Add more protein");
   if (categories.fiber < 4) tips.push("Add more fiber");
-  if (categories.vitamins < 4) tips.push("Add more vitamins");
   if (categories.sugar > 6) tips.push("Add more balance — sugar looks high");
   if (categories.fats > 7 && categories.fiber < 5) {
     tips.push("Add more fiber alongside richer meals");

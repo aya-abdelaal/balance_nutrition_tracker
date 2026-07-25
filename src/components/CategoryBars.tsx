@@ -6,7 +6,6 @@ const LABELS: { key: keyof CategoryScores; label: string }[] = [
   { key: "fats", label: "Fats" },
   { key: "fiber", label: "Fiber" },
   { key: "sugar", label: "Sugar" },
-  { key: "vitamins", label: "Vitamins" },
 ];
 
 type Props = {

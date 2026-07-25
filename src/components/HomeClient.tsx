@@ -100,7 +100,7 @@ export function HomeClient({
 
       <CategoryBars categories={agg.categories} />
       <TipsList tips={agg.tips} />
-      <WeekLog meals={weekMeals} />
+      <WeekLog meals={weekMeals} onDeleted={refresh} />
     </main>
   );
 }

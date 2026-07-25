@@ -32,7 +32,7 @@ describe("buildTips", () => {
     );
     expect(tips).toContain("Add more protein");
     expect(tips).toContain("Add more fiber");
-    expect(tips).toContain("Add more vitamins");
+    expect(tips).not.toContain("Add more vitamins");
     expect(tips.length).toBeLessThanOrEqual(3);
   });
 
