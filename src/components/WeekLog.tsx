@@ -119,9 +119,29 @@ export function WeekLog({ meals, onDeleted }: Props) {
                         aria-label={`Delete ${meal.raw_text}`}
                         disabled={deletingId === meal.id}
                         onClick={() => deleteMeal(meal.id)}
-                        className="rounded-lg px-2 py-1 text-xs text-[var(--muted)] transition hover:bg-[var(--line)] hover:text-[var(--low)] disabled:opacity-50"
+                        className="rounded-lg p-1.5 text-[var(--muted)] transition hover:bg-[var(--line)] hover:text-[var(--low)] disabled:opacity-50"
                       >
-                        {deletingId === meal.id ? "…" : "Delete"}
+                        {deletingId === meal.id ? (
+                          <span className="block h-4 w-4 animate-pulse rounded-full bg-[var(--muted)]/40" />
+                        ) : (
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.8"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="h-4 w-4"
+                            aria-hidden="true"
+                          >
+                            <path d="M3 6h18" />
+                            <path d="M8 6V4h8v2" />
+                            <path d="M19 6l-1 14H6L5 6" />
+                            <path d="M10 11v6" />
+                            <path d="M14 11v6" />
+                          </svg>
+                        )}
                       </button>
                     </div>
                   </li>
