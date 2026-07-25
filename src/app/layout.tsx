@@ -13,7 +13,7 @@ const sans = Source_Sans_3({
 });
 
 export const metadata: Metadata = {
-  title: "Balance — Nutrition Track",
+  title: "Balance — Nutrition Tracker",
   description:
     "Simple 80/20 nutrition balance tracking. Log meals in plain text and aim for 80%+ healthy intake.",
 };

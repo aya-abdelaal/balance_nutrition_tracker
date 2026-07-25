@@ -1,6 +1,6 @@
 # Acceptance criteria & tests
 
-Checklist for verifying Balance Nutrition Track after build/deploy.
+Checklist for verifying Balance Nutrition Tracker after build/deploy.
 
 ## Acceptance criteria
 

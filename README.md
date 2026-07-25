@@ -1,4 +1,4 @@
-# Balance Nutrition Track
+# Balance Nutrition Tracker
 
 Mobile-first web app for **80/20 nutrition balance** — not calorie counting. Log meals as loose text, get a health score, and aim for **80%+**.
 
@@ -50,7 +50,7 @@ Manual checklist: [`ACCEPTANCE.md`](ACCEPTANCE.md)
 
 ## Deploy (GitHub + Vercel)
 
-1. Push this repo to GitHub as `balance_nutrition_track`
+1. Push this repo to GitHub as `balance_nutrition_tracker`
 2. Import the repo in [Vercel](https://vercel.com)
 3. Add env vars: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `GEMINI_API_KEY`
 4. Deploy
@@ -60,7 +60,7 @@ Manual checklist: [`ACCEPTANCE.md`](ACCEPTANCE.md)
 
 - Today / Weekly (rolling 7 days) / Overall health scores
 - Plain-text meal logging via Gemini
-- Relative category estimates (carbs, protein, fats, fiber, sugar, vitamins)
+- Relative category estimates (carbs, protein, fats, fiber, sugar)
 - Soft "Add more …" tips
 - Week meal log
 - Manual overall score reset (keeps history)
