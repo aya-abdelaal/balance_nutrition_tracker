@@ -1,4 +1,7 @@
-import { GoogleGenerativeAI, type GenerationConfig } from "@google/generative-ai";
+import {
+  GoogleGenerativeAI,
+  type GenerationConfig,
+} from "@google/generative-ai";
 import type { MealAnalysis } from "./types";
 
 const SYSTEM_PROMPT = `You score meals for a balance-focused nutrition app (80/20 rule), NOT calorie counting.
@@ -19,12 +22,13 @@ Given a short free-text meal description, return ONLY valid JSON with this shape
 }
 
 Scoring guide (healthScore):
-- HIGH (80–100): clean, whole, real-ingredient meals — fresh produce, legumes, eggs, plain yogurt, grilled/roasted meat or fish, whole grains, home-cooked with recognizable ingredients and little or no packaging/processing
-- MID (50–79): mixed — mostly real food but with some refined or restaurant-style extras (white bread, mild sauces, modest oil)
+- HIGH (85–100): clean, whole, real-ingredient meals — fresh produce, legumes, eggs, plain yogurt, grilled/roasted meat or fish, whole grains, home-cooked with recognizable ingredients and little or no packaging/processing
+- MID (50–85): mixed — mostly real food but with some refined or restaurant-style extras (white bread, mild sauces, modest oil)
 - LOW (25–49): heavily refined or processed — fast food, fried items, packaged snacks, sweet baked goods
 - VERY LOW (0–24): candy, soda, rich desserts, pastries, ultra-processed junk — almost no whole-food value
 - Prefer whole + real over "technically nutritious but processed" (e.g. a simple grilled chicken + rice + veg scores higher than a packaged "protein bar")
-- Examples: "grilled fish with vegetables" ~90–98; "rice and chicken" ~75–90; "burger and fries" ~20–40; "tres leches cake" ~8–18; "candy bar" ~5–15
+- Examples: "grilled fish with vegetables" ~90–98; "rice and chicken" ~75–95, depends on the sauces and the rest of the plate; "burger and fries" ~20–50, depends whether they're fast food, so on; "candy bar" ~5–15
+- Use your best judgment on the healthScore, but be consistent.
 - Category values are relative estimates 0–10, NOT grams or calories
 - Be consistent; never invent calorie numbers`;
 
