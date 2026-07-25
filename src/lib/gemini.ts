@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenerativeAI, type GenerationConfig } from "@google/generative-ai";
 import type { MealAnalysis } from "./types";
 
 const SYSTEM_PROMPT = `You score meals for a balance-focused nutrition app (80/20 rule), NOT calorie counting.
@@ -39,12 +39,59 @@ function clampInt(
   return Math.min(max, Math.max(min, Math.round(v)));
 }
 
-function parseAnalysis(raw: string): MealAnalysis {
+/**
+ * Isolates the outermost JSON object. Responses may be fenced, prefixed with
+ * prose, or cut off mid-object, so unterminated output is closed off here.
+ */
+export function extractJsonObject(raw: string): string {
   const cleaned = raw
     .replace(/```json\s*/gi, "")
     .replace(/```/g, "")
     .trim();
-  const data = JSON.parse(cleaned) as Record<string, unknown>;
+
+  const start = cleaned.indexOf("{");
+  if (start === -1) return cleaned;
+
+  const stack: string[] = [];
+  let inString = false;
+  let escaped = false;
+
+  for (let i = start; i < cleaned.length; i++) {
+    const char = cleaned[i];
+
+    if (escaped) {
+      escaped = false;
+      continue;
+    }
+    if (char === "\\") {
+      escaped = true;
+      continue;
+    }
+    if (char === '"') {
+      inString = !inString;
+      continue;
+    }
+    if (inString) continue;
+
+    if (char === "{" || char === "[") {
+      stack.push(char === "{" ? "}" : "]");
+    } else if (char === "}" || char === "]") {
+      stack.pop();
+      if (stack.length === 0) return cleaned.slice(start, i + 1);
+    }
+  }
+
+  let repaired = cleaned.slice(start);
+  if (inString) repaired += '"';
+  repaired = repaired.replace(/,\s*$/, "");
+  while (stack.length > 0) {
+    repaired += stack.pop();
+  }
+  return repaired;
+}
+
+function parseAnalysis(raw: string): MealAnalysis {
+  const data = JSON.parse(extractJsonObject(raw)) as Record<string, unknown>;
 
   const flags = Array.isArray(data.flags)
     ? data.flags.filter((f): f is string => typeof f === "string").slice(0, 6)
@@ -76,26 +123,56 @@ export async function analyzeMealWithGemini(
 
   const genAI = new GoogleGenerativeAI(apiKey);
   const model = genAI.getGenerativeModel({
-    model: process.env.GEMINI_MODEL || "gemini-3.5-flash",
+    model: process.env.GEMINI_MODEL || "gemini-3.1-flash-lite",
     generationConfig: {
       temperature: 0.2,
       responseMimeType: "application/json",
-    },
+      maxOutputTokens: 512,
+      // Thinking output can be interleaved with the answer and break JSON parsing.
+      thinkingConfig: { thinkingBudget: 0 },
+    } as GenerationConfig,
   });
 
-  const result = await model.generateContent([
-    { text: SYSTEM_PROMPT },
-    { text: `Meal: ${rawText}` },
-  ]);
+  let lastError = "";
 
-  const text = result.response.text();
-  if (!text) {
-    throw new Error("Empty response from meal analysis.");
+  for (let attempt = 0; attempt < 2; attempt++) {
+    let result;
+    try {
+      result = await model.generateContent([
+        { text: SYSTEM_PROMPT },
+        { text: `Meal: ${rawText}` },
+      ]);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      if (message.includes("429")) {
+        throw new Error(
+          "Daily meal analysis limit reached. Try again a bit later.",
+        );
+      }
+      throw new Error("Meal analysis is unavailable right now. Try again.");
+    }
+
+    const candidate = result.response.candidates?.[0];
+    const parts = (candidate?.content?.parts || []).filter(
+      (part) => !(part as { thought?: boolean }).thought,
+    );
+    const text = parts
+      .map((part) => ("text" in part && part.text ? part.text : ""))
+      .join("")
+      .trim();
+
+    if (!text) {
+      lastError = `empty response (finishReason: ${candidate?.finishReason ?? "unknown"})`;
+      continue;
+    }
+
+    try {
+      return parseAnalysis(text);
+    } catch (err) {
+      lastError = `${err instanceof Error ? err.message : "parse error"} | raw: ${text.slice(0, 300)}`;
+    }
   }
 
-  try {
-    return parseAnalysis(text);
-  } catch {
-    throw new Error("Could not parse meal analysis. Try again.");
-  }
+  console.error("analyzeMealWithGemini failed:", lastError);
+  throw new Error("Could not read that meal. Try rewording it.");
 }
