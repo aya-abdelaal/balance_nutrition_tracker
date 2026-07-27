@@ -81,10 +81,13 @@ export function HomeClient({
 
   return (
     <main className="mx-auto w-full max-w-md flex-1 px-5 pb-6 pt-6">
-      <header className="mb-2 flex items-center justify-end">
+      <header className="mb-4 flex items-center justify-between">
+        <p className="font-[family-name:var(--font-display)] text-2xl tracking-tight text-[var(--ink)]">
+          Balance
+        </p>
         <Link
           href="/settings"
-          className="text-sm text-[var(--muted)] underline-offset-2 hover:text-[var(--ink)] hover:underline"
+          className="rounded-full border border-[var(--card-border)] bg-white/60 px-3 py-1.5 text-sm text-[var(--muted)] transition hover:text-[var(--ink)]"
         >
           Settings
         </Link>

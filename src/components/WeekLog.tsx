@@ -80,22 +80,22 @@ export function WeekLog({ meals, onDeleted }: Props) {
   }
 
   return (
-    <section className="mt-10 pb-8">
-      <h2 className="font-[family-name:var(--font-display)] text-lg text-[var(--ink)]">
+    <section className="card mb-8 mt-4 px-4 py-5">
+      <h2 className="text-xs font-medium uppercase tracking-[0.16em] text-[var(--muted)]">
         This week
       </h2>
       {meals.length === 0 ? (
-        <p className="mt-2 text-sm text-[var(--muted)]">
+        <p className="mt-3 text-sm text-[var(--muted)]">
           No meals logged in the last 7 days.
         </p>
       ) : (
         <div className="mt-4 flex flex-col gap-6">
           {groups.map((group) => (
             <div key={group.key}>
-              <h3 className="text-xs font-medium uppercase tracking-[0.12em] text-[var(--muted)]">
+              <h3 className="font-[family-name:var(--font-display)] text-base text-[var(--ink)]">
                 {group.heading}
               </h3>
-              <ul className="mt-2 divide-y divide-[var(--line)]">
+              <ul className="mt-1 divide-y divide-[var(--line)]">
                 {group.meals.map((meal) => (
                   <li
                     key={meal.id}

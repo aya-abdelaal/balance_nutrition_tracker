@@ -43,11 +43,14 @@ export function MealForm({ onLogged }: Props) {
   }
 
   return (
-    <form onSubmit={onSubmit} className="mt-8">
-      <label htmlFor="meal" className="sr-only">
-        What did you eat?
+    <form onSubmit={onSubmit} className="card mt-6 px-4 py-4">
+      <label
+        htmlFor="meal"
+        className="text-xs font-medium uppercase tracking-[0.16em] text-[var(--muted)]"
+      >
+        Log a meal
       </label>
-      <div className="flex gap-2">
+      <div className="mt-3 flex gap-2">
         <input
           id="meal"
           value={text}
