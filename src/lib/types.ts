@@ -51,3 +51,11 @@ export type Aggregates = {
   categories: CategoryScores | null;
   tips: string[];
 };
+
+export type LeaderboardEntry = {
+  user_id: string;
+  display_name: string | null;
+  today: number | null;
+  weekly: number | null;
+  overall: number | null;
+};

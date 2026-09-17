@@ -81,7 +81,13 @@ export function HomeClient({
 
   return (
     <main className="mx-auto w-full max-w-md flex-1 px-5 pb-6 pt-6">
-      <header className="mb-2 flex items-center justify-end">
+      <header className="mb-2 flex items-center justify-end gap-4">
+        <Link
+          href="/leaderboard"
+          className="text-sm text-[var(--muted)] underline-offset-2 hover:text-[var(--ink)] hover:underline"
+        >
+          Leaderboard
+        </Link>
         <Link
           href="/settings"
           className="text-sm text-[var(--muted)] underline-offset-2 hover:text-[var(--ink)] hover:underline"

@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 
 export default function SignupPage() {
   const router = useRouter();
+  const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -17,6 +18,13 @@ export default function SignupPage() {
     e.preventDefault();
     setError(null);
     setMessage(null);
+
+    const name = displayName.trim();
+    if (!name) {
+      setError("Enter a name or username.");
+      return;
+    }
+
     setLoading(true);
     const supabase = createClient();
     const { data, error: signError } = await supabase.auth.signUp({
@@ -24,13 +32,24 @@ export default function SignupPage() {
       password,
       options: {
         emailRedirectTo: `${window.location.origin}/auth/callback`,
+        data: { display_name: name },
       },
     });
-    setLoading(false);
     if (signError) {
+      setLoading(false);
       setError(signError.message);
       return;
     }
+
+    if (data.user) {
+      await supabase
+        .from("profiles")
+        .update({ display_name: name })
+        .eq("id", data.user.id);
+    }
+
+    setLoading(false);
+
     if (data.session) {
       router.push("/home");
       router.refresh();
@@ -49,6 +68,18 @@ export default function SignupPage() {
       </p>
 
       <form onSubmit={onSubmit} className="mt-8 flex flex-col gap-4">
+        <label className="flex flex-col gap-1.5 text-sm">
+          <span className="text-[var(--muted)]">Name</span>
+          <input
+            type="text"
+            required
+            maxLength={40}
+            autoComplete="nickname"
+            value={displayName}
+            onChange={(e) => setDisplayName(e.target.value)}
+            className="rounded-xl border border-[var(--line)] bg-white px-3 py-3 text-[var(--ink)] outline-none focus:border-[var(--sage)]"
+          />
+        </label>
         <label className="flex flex-col gap-1.5 text-sm">
           <span className="text-[var(--muted)]">Email</span>
           <input
