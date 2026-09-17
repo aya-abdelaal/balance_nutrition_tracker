@@ -8,6 +8,7 @@ const SYSTEM_PROMPT = `You score meals for a balance-focused nutrition app (80/2
 
 Core idea: reward CLEAN eating — whole foods, real ingredients, minimal processing.
 Penalize ultra-processed foods, packaged junk, refined sugar, and artificial additives.
+Everyday healthy, clean meals should usually land at 80%+
 
 Given a short free-text meal description, return ONLY valid JSON with this shape:
 {
@@ -21,14 +22,18 @@ Given a short free-text meal description, return ONLY valid JSON with this shape
   "summary": "<short phrase, max 8 words>"
 }
 
-Scoring guide (healthScore):
-- HIGH (85–100): clean, whole, real-ingredient meals — fresh produce, legumes, eggs, plain yogurt, grilled/roasted meat or fish, whole grains, home-cooked with recognizable ingredients and little or no packaging/processing
-- MID (50–85): mixed — mostly real food but with some refined or restaurant-style extras (white bread, mild sauces, modest oil)
-- LOW (25–49): heavily refined or processed — fast food, fried items, packaged snacks, sweet baked goods
-- VERY LOW (0–24): candy, soda, rich desserts, pastries, ultra-processed junk — almost no whole-food value
-- Prefer whole + real over "technically nutritious but processed" (e.g. a simple grilled chicken + rice + veg scores higher than a packaged "protein bar")
-- Examples: "grilled fish with vegetables" ~90–98; "rice and chicken" ~75–95, depends on the sauces and the rest of the plate; "burger and fries" ~20–50, depends whether they're fast food, so on; "candy bar" ~5–15
-- Use your best judgment on the healthScore, but be consistent.
+Scoring guide (healthScore) — default high; reserve low scores for junk and processed foods:
+- EXCELLENT (90–100): clean whole-food plates — produce, legumes, eggs, yogurt, fish, meat, whole grains, home-cooked real ingredients
+- SOLID (80–95): normal balanced meals people actually eat — chicken/rice/veg, pasta with protein, eggs + toast, salads with dressing, bowls, wraps with real fillings. White rice, white pasta, mild sauces, and cooking oil are fine here
+- OK (65–79): mixed but still mostly food — pizza with veg, homemade sandwiches, restaurant meals that aren't deep-fried junk, occasional fries on the side of a real meal
+- LOW (35–64): clearly indulgent or heavily processed — fast-food burgers/fries alone, fried takeout, sugary baked goods, packaged snacks as a meal
+- VERY LOW (0–34): candy, soda, rich desserts, pastries, chips + candy, ultra-processed junk with almost no whole-food value
+
+Leniency rules (important):
+- Do NOT ding ordinary staples: white rice, pasta, bread, tortillas, cheese, butter/oil, soy sauce, mayo in normal amounts
+- Vague real meals ("chicken and rice", "eggs and toast", "leftovers stew") → score highly if they include real, clean, well balanced ingredients unless clearly junk
+- Prefer whole + real over "technically nutritious but processed" (grilled chicken + rice + veg >> packaged protein bar)
+- Examples: "grilled fish with vegetables" ~95-100; "chicken rice and vegetables" ~90–95; "pasta with tomato sauce and meatballs" ~80–90; "egg sandwich" ~75-90; "burger and fries" ~35–55; "candy bar" ~5–15
 - Category values are relative estimates 0–10, NOT grams or calories
 - Be consistent; never invent calorie numbers`;
 
@@ -36,7 +41,7 @@ function clampInt(
   n: unknown,
   min: number,
   max: number,
-  fallback: number,
+  fallback: number
 ): number {
   const v = typeof n === "number" ? n : Number(n);
   if (!Number.isFinite(v)) return fallback;
@@ -118,7 +123,7 @@ function parseAnalysis(raw: string): MealAnalysis {
 }
 
 export async function analyzeMealWithGemini(
-  rawText: string,
+  rawText: string
 ): Promise<MealAnalysis> {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
@@ -150,7 +155,7 @@ export async function analyzeMealWithGemini(
       const message = err instanceof Error ? err.message : String(err);
       if (message.includes("429")) {
         throw new Error(
-          "Daily meal analysis limit reached. Try again a bit later.",
+          "Daily meal analysis limit reached. Try again a bit later."
         );
       }
       throw new Error("Meal analysis is unavailable right now. Try again.");
@@ -158,7 +163,7 @@ export async function analyzeMealWithGemini(
 
     const candidate = result.response.candidates?.[0];
     const parts = (candidate?.content?.parts || []).filter(
-      (part) => !(part as { thought?: boolean }).thought,
+      (part) => !(part as { thought?: boolean }).thought
     );
     const text = parts
       .map((part) => ("text" in part && part.text ? part.text : ""))
@@ -166,14 +171,18 @@ export async function analyzeMealWithGemini(
       .trim();
 
     if (!text) {
-      lastError = `empty response (finishReason: ${candidate?.finishReason ?? "unknown"})`;
+      lastError = `empty response (finishReason: ${
+        candidate?.finishReason ?? "unknown"
+      })`;
       continue;
     }
 
     try {
       return parseAnalysis(text);
     } catch (err) {
-      lastError = `${err instanceof Error ? err.message : "parse error"} | raw: ${text.slice(0, 300)}`;
+      lastError = `${
+        err instanceof Error ? err.message : "parse error"
+      } | raw: ${text.slice(0, 300)}`;
     }
   }
 
